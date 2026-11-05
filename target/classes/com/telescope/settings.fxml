@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+    Панель настроек наблюдателя и механики.
+    Контроллер: MainController.
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      styleClass="catalog-pane" spacing="14">
+
+    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+
+    <!-- ── Местоположение ────────────────────────────────────────────────────── -->
+    <VBox styleClass="control-block" spacing="10">
+        <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+        <Label text="МЕСТОПОЛОЖЕНИЕ НАБЛЮДАТЕЛЯ" styleClass="panel-title"/>
+
+        <GridPane hgap="12" vgap="8">
+            <columnConstraints>
+                <ColumnConstraints prefWidth="160" minWidth="140"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints prefWidth="40"/>
+            </columnConstraints>
+
+            <Label text="Широта (°):" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="tfLatitude" promptText="55.7512" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <Label text="N/S" styleClass="hint-label"
+                   GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+            <Label text="Долгота (°):" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="tfLongitude" promptText="37.6184" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Label text="E/W" styleClass="hint-label"
+                   GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+            <Label text="Часовой пояс:" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <ComboBox fx:id="cmbTimezone" styleClass="dark-combo"
+                      GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="Местное время:" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label fx:id="lblLocalTime" text="—" styleClass="coord-value"
+                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        </GridPane>
+
+        <Button fx:id="btnSaveLocation" text="Сохранить местоположение"
+                styleClass="btn-goto" maxWidth="Infinity"/>
+    </VBox>
+
+    <!-- ── Параметры двигателей ──────────────────────────────────────────────── -->
+    <VBox styleClass="control-block" spacing="10">
+        <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+        <Label text="ДВИГАТЕЛЬ 1 — АЗИМУТ (AZ)" styleClass="panel-title"/>
+
+        <GridPane hgap="12" vgap="8">
+            <columnConstraints>
+                <ColumnConstraints prefWidth="180" minWidth="160"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <Label text="Шагов на оборот:" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="tfStepsPerRev1" text="200" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="Мин. предел (шагов):" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="tfMinStep1" text="-36000" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="Макс. предел (шагов):" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextField fx:id="tfMaxStep1" text="36000" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="Текущий шаг:" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label fx:id="lblCurrentStep1" text="0" styleClass="coord-value"
+                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        </GridPane>
+
+        <Button fx:id="btnResetMotor1" text="Установить как HOME (нулевое положение)"
+                styleClass="btn-stop-soft" maxWidth="Infinity"/>
+    </VBox>
+
+    <VBox styleClass="control-block" spacing="10">
+        <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+        <Label text="ДВИГАТЕЛЬ 2 — ВЫСОТА (ALT)" styleClass="panel-title"/>
+
+        <GridPane hgap="12" vgap="8">
+            <columnConstraints>
+                <ColumnConstraints prefWidth="180" minWidth="160"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <Label text="Шагов на оборот:" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="tfStepsPerRev2" text="200" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="Мин. предел (шагов):" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="tfMinStep2" text="-5000" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="Макс. предел (шагов):" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextField fx:id="tfMaxStep2" text="5000" styleClass="dark-field"
+                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="Текущий шаг:" styleClass="field-label"
+                   GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label fx:id="lblCurrentStep2" text="0" styleClass="coord-value"
+                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        </GridPane>
+
+        <Button fx:id="btnResetMotor2" text="Установить как HOME (нулевое положение)"
+                styleClass="btn-stop-soft" maxWidth="Infinity"/>
+    </VBox>
+
+</VBox>

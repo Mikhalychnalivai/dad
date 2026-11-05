@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+    Панель «Каталог объектов» — встраивается в центральную область приложения
+    через TabPane. Контроллер: MainController (fx:id через @FXML).
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      styleClass="catalog-pane" spacing="10">
+
+    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+
+    <!-- ── Строка поиска и фильтр типа ──────────────────────────────────────── -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="tfCatalogSearch"
+                   promptText="🔍  Поиск по названию..."
+                   styleClass="dark-field" HBox.hgrow="ALWAYS"/>
+        <ComboBox fx:id="cmbTypeFilter" prefWidth="130" styleClass="dark-combo"
+                  promptText="Все типы"/>
+        <Button fx:id="btnClearSearch" text="✕" styleClass="btn-small-icon"
+                prefWidth="30" prefHeight="30"/>
+    </HBox>
+
+    <!-- ── Таблица объектов ──────────────────────────────────────────────────── -->
+    <TableView fx:id="catalogTable" VBox.vgrow="ALWAYS" styleClass="catalog-table">
+        <columns>
+            <TableColumn fx:id="colName"  text="Объект"  prefWidth="160"/>
+            <TableColumn fx:id="colType"  text="Тип"     prefWidth="100"/>
+            <TableColumn fx:id="colRA"    text="RA"      prefWidth="90"/>
+            <TableColumn fx:id="colDEC"   text="DEC"     prefWidth="100"/>
+            <TableColumn fx:id="colMag"   text="Зв.вел." prefWidth="75"/>
+        </columns>
+        <placeholder>
+            <Label text="Объекты не найдены" styleClass="hint-label"/>
+        </placeholder>
+    </TableView>
+
+    <!-- ── Описание выбранного объекта ──────────────────────────────────────── -->
+    <VBox styleClass="control-block" spacing="6">
+        <padding><Insets top="8" right="10" bottom="8" left="10"/></padding>
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label fx:id="lblSelectedObject" text="Объект не выбран"
+                   styleClass="block-label" HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblObjectCoords" text="" styleClass="coord-value"/>
+        </HBox>
+        <Label fx:id="lblObjectDesc" text="" styleClass="hint-label" wrapText="true"/>
+    </VBox>
+
+    <!-- ── Текущее расчётное положение ──────────────────────────────────────── -->
+    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="control-block">
+        <padding><Insets top="8" right="10" bottom="8" left="10"/></padding>
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Расчётное положение сейчас" styleClass="block-label"/>
+            <HBox spacing="16">
+                <Label text="AZ:" styleClass="coord-key"/>
+                <Label fx:id="lblCalcAz"  text="—" styleClass="coord-value"/>
+                <Label text="ALT:" styleClass="coord-key"/>
+                <Label fx:id="lblCalcAlt" text="—" styleClass="coord-value"/>
+                <Label fx:id="lblVisible" text="" styleClass="hint-label"/>
+            </HBox>
+        </VBox>
+        <Button fx:id="btnSyncObject"  text="⊕ Синхронизировать" styleClass="btn-sync"
+                prefWidth="170" disable="true"/>
+    </HBox>
+
+    <!-- ── Кнопка наведения ─────────────────────────────────────────────────── -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="btnSelectObject" text="Выбрать для наведения →"
+                styleClass="btn-goto" prefWidth="200" disable="true"/>
+    </HBox>
+
+</VBox>

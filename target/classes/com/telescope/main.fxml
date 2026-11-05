@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.telescope.controller.MainController"
+            styleClass="root-pane">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         ВЕРХНЯЯ ПАНЕЛЬ — заголовок и управление подключением
+         ═══════════════════════════════════════════════════════════ -->
+    <top>
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+
+            <VBox spacing="2">
+                <Label text="🔭 TelescopeControl" styleClass="app-title"/>
+                <Label text="Мини-телескоп на Arduino" styleClass="app-subtitle"/>
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Статус сопровождения -->
+            <Label fx:id="lblTrackingStatus" text="" styleClass="tracking-status-label"/>
+
+            <!-- Индикатор подключения -->
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Circle fx:id="indicatorCircle" radius="6"/>
+                <Label fx:id="lblConnectionStatus" styleClass="status-label" text="Демо-режим"/>
+            </HBox>
+
+            <Label text="Порт:" styleClass="field-label"/>
+            <ComboBox fx:id="cmbPort" prefWidth="110" styleClass="dark-combo"/>
+            <Button fx:id="btnConnect" text="Подключить" styleClass="btn-connect"/>
+            <Label fx:id="lblSystemState" text="Демо-режим" styleClass="state-badge"/>
+        </HBox>
+    </top>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         ЦЕНТРАЛЬНАЯ ОБЛАСТЬ — боковые панели + TabPane
+         ═══════════════════════════════════════════════════════════ -->
+    <center>
+        <HBox spacing="0" fillHeight="true">
+
+            <!-- ─────────────────────────────────────────────────────
+                 ЛЕВАЯ ПАНЕЛЬ — управление движением и скоростью
+                 ───────────────────────────────────────────────────── -->
+            <VBox styleClass="side-panel" spacing="16"
+                  minWidth="220" prefWidth="230" maxWidth="230"
+                  HBox.hgrow="NEVER">
+                <padding><Insets top="16" right="14" bottom="16" left="14"/></padding>
+
+                <Label text="УПРАВЛЕНИЕ" styleClass="panel-title"/>
+
+                <!-- Кнопки направления -->
+                <VBox styleClass="control-block" spacing="8" alignment="CENTER">
+                    <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                    <Label text="Направление" styleClass="block-label"/>
+                    <HBox alignment="CENTER">
+                        <Button fx:id="btnUp" text="▲" styleClass="btn-direction" prefWidth="56" prefHeight="48"/>
+                    </HBox>
+                    <HBox spacing="8" alignment="CENTER">
+                        <Button fx:id="btnLeft"  text="◀" styleClass="btn-direction" prefWidth="48" prefHeight="48"/>
+                        <Button fx:id="btnStop"  text="■" styleClass="btn-stop"      prefWidth="48" prefHeight="48"/>
+                        <Button fx:id="btnRight" text="▶" styleClass="btn-direction" prefWidth="48" prefHeight="48"/>
+                    </HBox>
+                    <HBox alignment="CENTER">
+                        <Button fx:id="btnDown" text="▼" styleClass="btn-direction" prefWidth="56" prefHeight="48"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Двигатель 1 -->
+                <VBox styleClass="control-block" spacing="6">
+                    <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="Двигатель 1" styleClass="block-label"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblSpeed1Value" text="50%" styleClass="speed-value"/>
+                    </HBox>
+                    <Slider fx:id="sliderSpeed1" styleClass="speed-slider"/>
+                    <Label text="Азимут / Горизонталь" styleClass="hint-label"/>
+                </VBox>
+
+                <!-- Двигатель 2 -->
+                <VBox styleClass="control-block" spacing="6">
+                    <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="Двигатель 2" styleClass="block-label"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblSpeed2Value" text="50%" styleClass="speed-value"/>
+                    </HBox>
+                    <Slider fx:id="sliderSpeed2" styleClass="speed-slider"/>
+                    <Label text="Высота / Вертикаль" styleClass="hint-label"/>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <Label text="Удерживайте кнопку\nдля непрерывного\nдвижения телескопа"
+                       styleClass="hint-label" textAlignment="CENTER" wrapText="true"/>
+            </VBox>
+
+            <!-- ─────────────────────────────────────────────────────
+                 ЦЕНТР — TabPane: Карта / Объекты / Настройки
+                 ───────────────────────────────────────────────────── -->
+            <TabPane fx:id="mainTabPane" styleClass="main-tab-pane"
+                     HBox.hgrow="ALWAYS" minWidth="100" tabClosingPolicy="UNAVAILABLE">
+
+                <!-- Вкладка: Карта неба -->
+                <Tab text="🌌  Карта неба" styleClass="main-tab">
+                    <StackPane fx:id="starMapContainer" styleClass="star-map-container"/>
+                </Tab>
+
+                <!-- Вкладка: Каталог объектов -->
+                <Tab text="⭐  Объекты" styleClass="main-tab">
+                    <VBox styleClass="catalog-pane" spacing="10">
+                        <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+
+                        <!-- Строка поиска -->
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="tfCatalogSearch"
+                                       promptText="🔍  Поиск по названию..."
+                                       styleClass="dark-field" HBox.hgrow="ALWAYS"/>
+                            <ComboBox fx:id="cmbTypeFilter" prefWidth="130" styleClass="dark-combo"
+                                      promptText="Все типы"/>
+                            <Button fx:id="btnClearSearch" text="✕" styleClass="btn-small-icon"
+                                    prefWidth="30" prefHeight="30"/>
+                        </HBox>
+
+                        <!-- Таблица -->
+                        <TableView fx:id="catalogTable" VBox.vgrow="ALWAYS" styleClass="catalog-table">
+                            <columns>
+                                <TableColumn fx:id="colName" text="Объект"  prefWidth="155"/>
+                                <TableColumn fx:id="colType" text="Тип"     prefWidth="95"/>
+                                <TableColumn fx:id="colRA"   text="RA"      prefWidth="85"/>
+                                <TableColumn fx:id="colDEC"  text="DEC"     prefWidth="95"/>
+                                <TableColumn fx:id="colMag"  text="Зв.вел." prefWidth="70"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="Объекты не найдены" styleClass="hint-label"/>
+                            </placeholder>
+                        </TableView>
+
+                        <!-- Описание объекта -->
+                        <VBox styleClass="control-block" spacing="5">
+                            <padding><Insets top="8" right="10" bottom="8" left="10"/></padding>
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Label fx:id="lblSelectedObject" text="Выберите объект в таблице"
+                                       styleClass="block-label" HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="lblObjectCoords" text="" styleClass="coord-eq"/>
+                            </HBox>
+                            <Label fx:id="lblObjectDesc" text="" styleClass="hint-label" wrapText="true"/>
+                        </VBox>
+
+                        <!-- Расчётное положение и кнопки -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="control-block">
+                            <padding><Insets top="8" right="10" bottom="8" left="10"/></padding>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Расчётное положение сейчас" styleClass="block-label"/>
+                                <HBox spacing="14">
+                                    <Label text="AZ:" styleClass="coord-key"/>
+                                    <Label fx:id="lblCalcAz"  text="—" styleClass="coord-value"/>
+                                    <Label text="ALT:" styleClass="coord-key"/>
+                                    <Label fx:id="lblCalcAlt" text="—" styleClass="coord-value"/>
+                                    <Label fx:id="lblVisible" text="" styleClass="hint-label"/>
+                                </HBox>
+                            </VBox>
+                            <Button fx:id="btnSyncObject" text="⊕ Синхронизировать"
+                                    styleClass="btn-sync" prefWidth="170" disable="true"/>
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                            <Button fx:id="btnSelectObject" text="Выбрать объект →"
+                                    styleClass="btn-goto" prefWidth="180" disable="true"/>
+                        </HBox>
+                    </VBox>
+                </Tab>
+
+                <!-- Вкладка: Настройки -->
+                <Tab text="⚙  Настройки" styleClass="main-tab">
+                    <ScrollPane fitToWidth="true" styleClass="dark-scroll">
+                        <VBox styleClass="catalog-pane" spacing="14">
+                            <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+
+                            <!-- Местоположение -->
+                            <VBox styleClass="control-block" spacing="10">
+                                <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+                                <Label text="МЕСТОПОЛОЖЕНИЕ НАБЛЮДАТЕЛЯ" styleClass="panel-title"/>
+                                <GridPane hgap="12" vgap="8">
+                                    <columnConstraints>
+                                        <ColumnConstraints prefWidth="180"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                    </columnConstraints>
+                                    <Label text="Широта (°, + север):" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                    <TextField fx:id="tfLatitude" promptText="55.7512" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                    <Label text="Долгота (°, + восток):" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                    <TextField fx:id="tfLongitude" promptText="37.6184" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                    <Label text="Часовой пояс:" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                    <ComboBox fx:id="cmbTimezone" styleClass="dark-combo" maxWidth="Infinity"
+                                              GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                    <Label text="Локальное время:" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                    <Label fx:id="lblLocalTime" text="—" styleClass="coord-value"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                </GridPane>
+                                <Button fx:id="btnSaveLocation" text="Применить"
+                                        styleClass="btn-goto" maxWidth="Infinity"/>
+                            </VBox>
+
+                            <!-- Двигатель 1 -->
+                            <VBox styleClass="control-block" spacing="10">
+                                <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+                                <Label text="ДВИГАТЕЛЬ 1 — АЗИМУТ (AZ)" styleClass="panel-title"/>
+                                <GridPane hgap="12" vgap="8">
+                                    <columnConstraints>
+                                        <ColumnConstraints prefWidth="180"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                    </columnConstraints>
+                                    <Label text="Шагов на оборот:" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                    <TextField fx:id="tfStepsPerRev1" text="200" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                    <Label text="Мин. предел (шагов):" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                    <TextField fx:id="tfMinStep1" text="-36000" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                    <Label text="Макс. предел (шагов):" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                    <TextField fx:id="tfMaxStep1" text="36000" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                    <Label text="Текущий шаг / угол:" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                    <Label fx:id="lblCurrentStep1" text="0 / 0.0°" styleClass="coord-value"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                </GridPane>
+                                <HBox spacing="8">
+                                    <Button fx:id="btnResetMotor1" text="Установить как HOME"
+                                            styleClass="btn-stop-soft" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                    <Button fx:id="btnApplyMotor1" text="Применить"
+                                            styleClass="btn-goto" prefWidth="100"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- Двигатель 2 -->
+                            <VBox styleClass="control-block" spacing="10">
+                                <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+                                <Label text="ДВИГАТЕЛЬ 2 — ВЫСОТА (ALT)" styleClass="panel-title"/>
+                                <GridPane hgap="12" vgap="8">
+                                    <columnConstraints>
+                                        <ColumnConstraints prefWidth="180"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                    </columnConstraints>
+                                    <Label text="Шагов на оборот:" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                    <TextField fx:id="tfStepsPerRev2" text="200" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                    <Label text="Мин. предел (шагов):" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                    <TextField fx:id="tfMinStep2" text="-5000" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                    <Label text="Макс. предел (шагов):" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                    <TextField fx:id="tfMaxStep2" text="5000" styleClass="dark-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                    <Label text="Текущий шаг / угол:" styleClass="field-label"
+                                           GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                    <Label fx:id="lblCurrentStep2" text="0 / 0.0°" styleClass="coord-value"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                </GridPane>
+                                <HBox spacing="8">
+                                    <Button fx:id="btnResetMotor2" text="Установить как HOME"
+                                            styleClass="btn-stop-soft" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                    <Button fx:id="btnApplyMotor2" text="Применить"
+                                            styleClass="btn-goto" prefWidth="100"/>
+                                </HBox>
+                            </VBox>
+
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+
+            </TabPane>
+
+            <!-- ─────────────────────────────────────────────────────
+                 ПРАВАЯ ПАНЕЛЬ — координаты + сопровождение
+                 ───────────────────────────────────────────────────── -->
+            <VBox styleClass="side-panel-right" spacing="14"
+                  minWidth="220" prefWidth="240" maxWidth="240"
+                  HBox.hgrow="NEVER">
+                <padding><Insets top="16" right="14" bottom="16" left="14"/></padding>
+
+                <Label text="КООРДИНАТЫ" styleClass="panel-title"/>
+
+                <!-- Текущие координаты -->
+                <VBox styleClass="control-block" spacing="0">
+                    <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                    <Label text="Расчётная позиция" styleClass="block-label"/>
+                    <GridPane hgap="8" vgap="6">
+                        <padding><Insets top="8"/></padding>
+                        <Label text="AZ"  styleClass="coord-key" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <Label fx:id="lblAzimuth" text="0.00°" styleClass="coord-value"
+                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        <Label text="ALT" styleClass="coord-key" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <Label fx:id="lblAltitude" text="+0.00°" styleClass="coord-value"
+                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Separator GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2" prefWidth="180"/>
+                        <Label text="RA"  styleClass="coord-key" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <Label fx:id="lblRA" text="00:00:00" styleClass="coord-value coord-eq"
+                               GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <Label text="DEC" styleClass="coord-key" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                        <Label fx:id="lblDEC" text="+00°00'00&quot;" styleClass="coord-value coord-eq"
+                               GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                    </GridPane>
+                    <Label text="⚠ Расчётное, не измеренное" styleClass="warn-label"/>
+                </VBox>
+
+                <!-- Ручной ввод координат -->
+                <VBox styleClass="control-block" spacing="8">
+                    <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                    <Label text="Навести вручную" styleClass="block-label"/>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="AZ"  styleClass="field-label" minWidth="30"/>
+                        <TextField fx:id="tfTargetAz" promptText="0.00" styleClass="dark-field" HBox.hgrow="ALWAYS"/>
+                        <Label text="°" styleClass="field-label"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="ALT" styleClass="field-label" minWidth="30"/>
+                        <TextField fx:id="tfTargetAlt" promptText="0.00" styleClass="dark-field" HBox.hgrow="ALWAYS"/>
+                        <Label text="°" styleClass="field-label"/>
+                    </HBox>
+                    <Button fx:id="btnGoTo" text="Навести →" styleClass="btn-goto" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Сопровождение -->
+                <VBox styleClass="control-block" spacing="8">
+                    <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                    <Label text="СОПРОВОЖДЕНИЕ" styleClass="panel-title"/>
+
+                    <Label fx:id="lblTrackingTarget" text="Объект не выбран"
+                           styleClass="hint-label" wrapText="true"/>
+
+                    <HBox spacing="4">
+                        <Circle fx:id="trackingIndicator" radius="5"/>
+                        <Label fx:id="lblTrackingState" text="Не активно"
+                               styleClass="status-label"/>
+                    </HBox>
+
+                    <!-- Кнопки управления сопровождением -->
+                    <Button fx:id="btnStartTracking" text="▶ Запустить"
+                            styleClass="btn-track-start" maxWidth="Infinity" disable="true"/>
+                    <HBox spacing="6">
+                        <Button fx:id="btnPauseTracking"  text="⏸ Пауза"
+                                styleClass="btn-track-pause"  HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity" disable="true"/>
+                        <Button fx:id="btnStopTracking"   text="⏹ Стоп"
+                                styleClass="btn-stop" prefWidth="70" disable="true"/>
+                    </HBox>
+                    <Label fx:id="lblSyncStatus" text="Синхронизация не выполнена"
+                           styleClass="hint-label" wrapText="true"/>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <!-- Подсказка -->
+                <Label text="Для сопровождения:\n1. Откройте «Объекты»\n2. Синхронизируйтесь\n3. Нажмите «Запустить»"
+                       styleClass="hint-label" wrapText="true"/>
+            </VBox>
+
+        </HBox>
+    </center>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         НИЖНЯЯ ПАНЕЛЬ — статус и журнал
+         ═══════════════════════════════════════════════════════════ -->
+    <bottom>
+        <VBox styleClass="bottom-bar" spacing="0">
+            <HBox spacing="16" alignment="CENTER_LEFT" styleClass="status-row">
+                <padding><Insets top="6" right="16" bottom="6" left="16"/></padding>
+                <Label fx:id="lblArduinoState" text="Arduino: не подключена" styleClass="status-item"/>
+                <Separator orientation="VERTICAL" styleClass="status-sep"/>
+                <Label fx:id="lblMotor1State"  text="Двигатель 1: ожидание" styleClass="status-item"/>
+                <Separator orientation="VERTICAL" styleClass="status-sep"/>
+                <Label fx:id="lblMotor2State"  text="Двигатель 2: ожидание" styleClass="status-item"/>
+                <Separator orientation="VERTICAL" styleClass="status-sep"/>
+                <Label fx:id="lblCurrentSpeed" text="Скорость: Дв1=50% Дв2=50%" styleClass="status-item"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblStepperStatus" text="" styleClass="status-item-dim"/>
+            </HBox>
+            <VBox styleClass="log-container" spacing="4">
+                <padding><Insets top="4" right="16" bottom="8" left="16"/></padding>
+                <Label text="ЖУРНАЛ КОМАНД" styleClass="log-title"/>
+                <ListView fx:id="logListView" styleClass="log-list" prefHeight="100" minHeight="80"/>
+            </VBox>
+        </VBox>
+    </bottom>
+
+</BorderPane>
